@@ -33,7 +33,7 @@ export async function GET(request:NextRequest){
                 success: false,
                 message: "username is already taken"
             },{status: 400})
-        }
+        } 
         return NextResponse.json({
             success: true,
             message: "username is unique"
