@@ -28,7 +28,7 @@ export async function POST(request: NextRequest){
             if(existingUserByEmail.isVerified){
                 return NextResponse.json({
                 success: false,
-                message: "username  already exist with this email"
+                message: "username already exist with this email"
             },{status: 400})
             }else{
                 const hashedPassword = await bcrypt.hash(password,10)
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest){
         }
         return NextResponse.json({
             success: true,
-            message: "user register successfully. Please verify your email"
+            message: "user register successfully. Please verify your otp"
         },{status: 200})
         
     } catch (error) {
