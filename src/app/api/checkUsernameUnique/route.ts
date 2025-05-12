@@ -11,37 +11,52 @@ const UsernameQuerySchema = z.object({
 export async function GET(request:NextRequest){
     await dbConnection()
     try {
-        const {searchParams} = new URL(request.url)
+        const { searchParams } = new URL(request.url);
         console.log("search Params:", searchParams);
         const queryParam = {
-            username: searchParams.get('username')
+          username: searchParams.get("username"),
+        };
+        const result = UsernameQuerySchema.safeParse(queryParam);
+        console.log("result:", result);
+
+        if (!result.success) {
+          const usernameErrors = result.error.format().username?._errors || [];
+          return NextResponse.json(
+            {
+              success: false,
+              message:
+                usernameErrors?.length > 0
+                  ? usernameErrors.join(",")
+                  : "invalid query parameter",
+            },
+            { status: 400 }
+          );
         }
-        const result = UsernameQuerySchema.safeParse(queryParam)
-        console.log("result:",result.error)
-        
-        if(!result.success){
-           const usernameErrors =  result.error.format().username?._errors || []
-           return NextResponse.json({
-            success: false,
-            message: usernameErrors?.length > 0 ? usernameErrors.join(',') : "invalid query parameter"
-           },{status: 400})
+        const { username } = result.data;
+        const existingUser = await UserModel.findOne({
+          username,
+          isVerified: true,
+        });
+        if (existingUser) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "username is already taken",
+            },
+            { status: 400 }
+          );
         }
-        const {username} = result.data
-        const existingUser = await UserModel.findOne({username, isVerified: true})
-        if(existingUser){
-            return NextResponse.json({
-                success: false,
-                message: "username is already taken"
-            },{status: 400})
-        } 
-        return NextResponse.json({
+        return NextResponse.json(
+          {
             success: true,
-            message: "username is unique"
-        },{status: 200})
+            message: "username is unique",
+          },
+          { status: 200 }
+        );
     } catch (error) {
         return NextResponse.json({
             success: false,
-            message: "error while checking username"
+            message: "error while checking username unique"
         },{status: 500})
         
     }
