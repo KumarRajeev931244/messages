@@ -13,24 +13,26 @@ import { Button } from '@/components/ui/button'
 import { verifySchema } from '@/schemas/verifySchema'
 
 
-const Page = () => {
+const page = () => {
+    
     const router =  useRouter()
     // getting data from url
     const params = useParams<{username: string}>()
     const form = useForm<z.infer<typeof verifySchema>>({
-        resolver: zodResolver(verifySchema)
+        resolver: zodResolver(verifySchema),
+        defaultValues: {code: ''}
     })
+  
     const onSubmit = async(data: z.infer<typeof verifySchema>) => {
-       
         try {
+            console.log("verify data:",data)
             const response = await axios.post<ApiResponse>(`/api/verify-code`, {
                 username: params.username,
                 code: data.code
             })
-            toast("success",{
-                description: response.data.message
-            })
-            router.replace('/sign-in')
+            console.log("verify response:",response)
+            toast.success(response.data.message)
+            router.replace('/signIn')
         } catch (error) {
             console.error("error in signup of user", error)
             const axiosError = error as AxiosError<ApiResponse>
@@ -66,14 +68,12 @@ const Page = () => {
                         </FormField>
                         <Button className='cursor-pointer' type='submit'>Submit</Button>
                     </form>
-                </Form>
-            
+                </Form>        
             </div>
         </div>
-
        </div>
     )
 }
 
 
-export default Page
+export default page
