@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {signIn} from "next-auth/react"
 import { signInSchema } from "@/schemas/signInSchema"
+import Link from "next/link"
 
 const page = () => {
     const router = useRouter()
@@ -48,7 +49,6 @@ const page = () => {
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-             
               <FormField
                 name="identifier"
                 control={form.control}
@@ -56,30 +56,45 @@ const page = () => {
                   <FormItem>
                     <FormLabel>email/username</FormLabel>
                     <FormControl>
-                      <Input placeholder="email/username" {...field}/>
-                    </FormControl>    
+                      <Input placeholder="email/username" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
-                )} 
+                )}
               />
-               <FormField
+              <FormField
                 name="password"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>password</FormLabel>
                     <FormControl>
-                      <Input placeholder="password" {...field} type="password"/>
-                    </FormControl>    
+                      <Input
+                        placeholder="password"
+                        {...field}
+                        type="password"
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
-                )} 
+                )}
               />
               <Button type="submit" className="cursor-pointer">
-               Submit
+                Submit
               </Button>
             </form>
           </Form>
+          <div className="text-center mt-4">
+            <p>
+              Not a member?{" "}
+              <Link
+                href="/signUp"
+                className="text-blue-600 hover:text-blue-800"
+              >
+                Sign up
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     );
