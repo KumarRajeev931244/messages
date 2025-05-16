@@ -63,9 +63,9 @@ const page = () => {
         setIsSwitchLoading(false)
         try {
             const response = await axios.get('/api/get-messages')   
-            console.log("dashboard fetchMessage response:",response);
-            // setMessages(response.data.message)
-            setMessages(Array.isArray(response.data.message) ? response.data.message : []);
+            console.log("dashboard fetchMessage response:",response.data);
+            setMessages(response.data.message)
+            // setMessages(Array.isArray(response.data.message) ? response.data.message : []);
             if(refresh){
                 toast.success("refresh messages")
             }

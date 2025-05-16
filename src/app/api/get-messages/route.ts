@@ -30,7 +30,7 @@ export async function GET(request: Request){
             {$sort: {'message.createdAt': -1}},
             {$group: {_id: '$_id', message: {$push: '$message'}}}
         ])
-        // console.log("user4",user[0].message[0].content)
+        console.log("user4",user)
         if(!user || user.length === 0){
            return NextResponse.json(
             {
@@ -42,7 +42,7 @@ export async function GET(request: Request){
         return NextResponse.json(
             {
                 success:true,
-                message: [user[0].message]
+                message: user[0].message
             },{status:200}
         )
     } catch (error) {
