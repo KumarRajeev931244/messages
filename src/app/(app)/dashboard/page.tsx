@@ -14,6 +14,7 @@ import MessageCard from "@/components/messageCard";
 import { Message } from "@/models/User";
 import { acceptMessageSchema } from "@/schemas/acceptMessagesSchema";
 import { User } from "next-auth";
+import { array } from "zod";
 
 
 const page = () => {
@@ -23,8 +24,9 @@ const page = () => {
     const [isSwitchLoading, setIsSwitchLoading] = useState(false)
 
     const {data:session} = useSession()
-    console.log("dashboard session:",session);
+    // console.log("dashboard session:",session);
     
+    // handling delete messages
     const handleDeleteMessage = (messageId : string) => {
         setMessages(messages.filter((message) => message._id !== messageId))
         console.log("messages:", messages)
@@ -33,20 +35,20 @@ const page = () => {
     const form = useForm({
         resolver: zodResolver(acceptMessageSchema)
     })
-    console.log("dashboard form:", form);
+    // console.log("dashboard form:", form);
     
     const {register, watch, setValue} = form
     // taken from acceptMessageSchema
-    const acceptMessages = watch('acceptMessage')
-    console.log("dashboard acceptMessages:",acceptMessages);
+    const acceptMessage = watch('acceptMessage')
+    console.log("dashboard acceptMessages:",acceptMessage);
     
 
     const fetchAcceptMessage = useCallback(async() => {
         setIsSwitchLoading(true)
         try {
             const response = await axios.get<ApiResponse>('/api/accept-messages')
-            console.log("dashboard response:",response);
-            setValue('acceptMessage', response.data.isAcceptingMessages ?? false)
+            console.log("dashboard response:",response.data.isAcceptingMessage);
+            setValue('acceptMessage', response.data.isAcceptingMessage!)
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
             toast.error(axiosError.response?.data.message || "failed to fetch message setting")
@@ -54,7 +56,7 @@ const page = () => {
             setIsSwitchLoading(false)
         }
     }, [setValue])
-    console.log("dashboard fetchAcceptMessage:",fetchAcceptMessage);
+    // console.log("dashboard fetchAcceptMessage:",fetchAcceptMessage);
 
     const fetchMessages = useCallback(async(refresh: boolean = false)=> {
         setIsLoading(true)
@@ -62,7 +64,8 @@ const page = () => {
         try {
             const response = await axios.get('/api/get-messages')   
             console.log("dashboard fetchMessage response:",response);
-            setMessages(response.data.messages || [])
+            // setMessages(response.data.message)
+            setMessages(Array.isArray(response.data.message) ? response.data.message : []);
             if(refresh){
                 toast.success("refresh messages")
             }
@@ -73,10 +76,11 @@ const page = () => {
             setIsSwitchLoading(false)
         }
     }, [setIsLoading, setMessages])
+    
 
     useEffect(() => {
         if(!session || !session.user) {
-            toast.error("not authenticated")
+            toast.error("not authenticated user")
             return
         }
         fetchMessages()
@@ -86,10 +90,10 @@ const page = () => {
     const handlleSwitchChange = async() => {
         try {
             const response = await axios.post<ApiResponse>(`/api/accept-messages`, {
-                acceptMessage: !acceptMessages
+                acceptMessage: !acceptMessage
             })
             console.log("dashboard handleSwitchChange response:",response);
-            setValue('acceptMessage', !acceptMessages)
+            setValue('acceptMessage', !acceptMessage)
             toast.message(response.data.message)
         } catch (error) {
             const axiosError = error as AxiosError<ApiResponse>
@@ -129,12 +133,12 @@ const page = () => {
                 <div className="mb-4">
                     <Switch
                         {...register('acceptMessage')}
-                        checked={acceptMessages}
+                        checked={acceptMessage}
                         onCheckedChange={handlleSwitchChange}
                         disabled = {isSwitchLoading}
                     />
                     <span className="ml-2">
-                        Accept Message: {acceptMessages ? 'On' : 'Off'}
+                        Accept Message: {acceptMessage ? 'On' : 'Off'}
                     </span>
     
                 </div>
@@ -145,15 +149,14 @@ const page = () => {
                 }}>
                     {isLoading ? (<Loader2 className="h-4 w-4 animate-spin"/>) : (<RefreshCcw className="h-4 w-4"/>)} 
                     </Button>
-                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {messages.length > 0 ? (
-                            messages.map((messages) => (
-                                <MessageCard 
-                                    key={messages._id}
-                                    message={messages}
-                                    onMessageDelete={handleDeleteMessage}
-                                />
-    
+                    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">  
+                        {messages.length >= 0 ? (
+                            messages.map((message, index) => (
+                            <MessageCard 
+                            key={message._id ?? index}
+                            message={message}
+                            onMessageDelete={handleDeleteMessage}
+                            />
                             ))
                         ) : (
                             <p>no message to display</p>

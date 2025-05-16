@@ -1,19 +1,17 @@
 import { dbConnection } from "@/lib/dbConnect";
 import UserModel from "@/models/User";
-import { getServerSession, User } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import mongoose from "mongoose";
+import { User } from "next-auth";
 
-
-export async function GET(request: NextRequest){
-    console.log('request:',request)
+export async function GET(request: Request){
+    // console.log('Get messages request:',request)
     await dbConnection()
-    console.log("authOption:",authOptions);
-    
-    const session = await getServerSession(authOptions)
-    console.log("session:",session)
-    const user:User = session?.user as User
+    const session = await getServerSession( authOptions)
+    // console.log("Get messages session:",session)
+     const user:User = session?.user as User
     if(!session || !session.user){
         return NextResponse.json(
             {
@@ -22,14 +20,17 @@ export async function GET(request: NextRequest){
             },{status:400}
         )
     }
-    const userId = new mongoose.Types.ObjectId(user._id)
+    // console.log("get message user2:",user)
+    const userId = new mongoose.Types.ObjectId(user._id as string)
+    // console.log("aggregrated user: ",userId)
     try {
         const user = await UserModel.aggregate([
-            {$match: {id: userId} },
-            {$unwind: '$messages'},
-            {$sort: {'messages.createdAt': -1}},
-            {$group: {_id: '$_id', messages: {$push: '$messages'}}}
+            {$match: {_id: userId} },
+            {$unwind: '$message'},
+            {$sort: {'message.createdAt': -1}},
+            {$group: {_id: '$_id', message: {$push: '$message'}}}
         ])
+        // console.log("user4",user[0].message[0].content)
         if(!user || user.length === 0){
            return NextResponse.json(
             {
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest){
         return NextResponse.json(
             {
                 success:true,
-                message: user[0].messages
+                message: [user[0].message]
             },{status:200}
         )
     } catch (error) {

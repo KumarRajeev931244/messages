@@ -8,10 +8,10 @@ export async function POST(request: NextRequest) {
     await dbConnection()
     // to find the currently login user 
     const session = await getServerSession(authOptions)
-    console.log('session:',session);
+    // console.log('session:',session);
     // from session we can find user because we inject it.
     const user:User = session?.user as User // we need to assert the user
-    console.log("user:", user)
+    // console.log("user:", user)
 
     if(!session || !session.user){
         return NextResponse.json({
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         },{status: 400})
     }
     const userId = user._id
-    console.log('userId:',userId);
+    // console.log('userId:',userId);
     const {acceptmessage} = await request.json()
     try {
         const updatedUser = await UserModel.findByIdAndUpdate(

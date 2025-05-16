@@ -2,10 +2,20 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 export { default } from "next-auth/middleware"
 import { getToken } from 'next-auth/jwt'
- 
+
 
 export async function middleware(request: NextRequest) {
     const token = await getToken({req: request})
+    console.log("token:", token)
+    if (!token) {
+      console.log("please log in")
+      
+    
+    return NextResponse.json(
+      { success: false, message: "Not have token" },
+      { status: 401 }
+    );
+  }
     const url = request.nextUrl
     console.log("URL:", url)
     // agar hamere pass token aur hum signIn page pe kiya karne ja rahe ho. because token means u r login
@@ -30,5 +40,6 @@ export const config = {
     '/',
     '/dashboard/:path*',
     '/verify/:path*'
+   
   ],
 }
