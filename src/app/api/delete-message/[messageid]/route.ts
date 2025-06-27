@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 
 
 export async function DELETE(request: NextRequest, {params}: {params:{messageid:string}}){
-    const messageid= params.messageid 
+    const messageid= await params.messageid 
     
     await dbConnection()
   

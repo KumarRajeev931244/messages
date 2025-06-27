@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {Loader2, LoaderCircle} from 'lucide-react'
 
+
 const page = () => {
     const [username, setUsername] = useState('')
     // username  available message 
@@ -37,6 +38,9 @@ const page = () => {
          password: "" 
         },
     });
+    
+    
+              
 
     useEffect(() => {
         const checkUsernameUnique = async() => {
@@ -69,7 +73,7 @@ const page = () => {
         } catch (error) {
             console.error("Error in signup of user",error)
             const axiosError = error as AxiosError<ApiResponse>
-            console.log("axiosError:", axiosError);
+            // console.log("axiosError:", axiosError);
             let errorMessage = axiosError.response?.data.message
             toast.error(errorMessage)     
         } finally{

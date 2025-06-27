@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import {signIn} from "next-auth/react"
 import { signInSchema } from "@/schemas/signInSchema"
 import Link from "next/link"
+import { useLoadingBar} from 'react-top-loading-bar'
 
 const page = () => {
     const router = useRouter()
@@ -28,15 +29,16 @@ const page = () => {
             identifier: data.identifier,
             password: data.password
         })
-        console.log("signin result:",result);
+        // console.log("signin result:",result);
         if(result?.error){
             toast.error("Login failed")
         }
         if(result?.url){
             toast.success("login successfully")
-            router.replace('dashboard')
+            router.replace('dashboard',{scroll:false})
         }   
     }
+    const { start, complete } = useLoadingBar({ color: "blue", height: 2 });
 
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
@@ -78,8 +80,8 @@ const page = () => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-              <Button type="submit" className="cursor-pointer">
+              /> 
+              <Button type="submit" className= "hover:cursor-pointer" onClick={() => {start()}}>
                 Submit
               </Button>
             </form>
